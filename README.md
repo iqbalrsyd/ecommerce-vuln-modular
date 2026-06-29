@@ -131,7 +131,7 @@ semgrep \
   test-repo-dummy/ecommerce-modular-monolith-vuln/
 ```
 
-Latest scan (Semgrep 1.167.0):
+Latest scan (Semgrep 1.167.0, on the full local source):
 
 - **22 distinct rules triggered** out of the 30+ defined in the rule files.
 - **162 total findings** (mostly `price-tampering` / `discount-tampering` per
@@ -145,3 +145,41 @@ Latest scan (Semgrep 1.167.0):
   `api-admin-endpoint-no-role-check`; unresolved glob in
   `pci-dss-4-payment-over-http`). The vulnerable code is there; the rule
   files need fixing.
+
+## Reproducing the secret-related rules on this repo
+
+GitHub's push protection blocks any string literal that matches a known
+secret pattern (Stripe live keys, Visa/Mastercard test PANs in certain
+formats, generic 32+ char high-entropy strings). To keep the repo
+cloneable, `packages/shared/config/src/index.js` loads secrets from
+`process.env` with **safe placeholders**, and `.env.example` is left
+empty by default.
+
+To reproduce the **secret-related** scanner rules
+(`ecommerce-pci-stripe-secret-in-source`, `pci-dss-3-4-pan-in-source`,
+`ecommerce-jwt-weak-secret`, `ecommerce-md5-password`, etc.) without
+bypassing GitHub protection:
+
+```bash
+cd ecommerce-modular-monolith-vuln
+cp .env.example .env
+
+# In .env, set the values that match the scanner regexes. The
+# Semgrep rules in ecommerce.yml and pci-dss.yml look for the
+# canonical Stripe-style test key (sk_live_ prefix + 24+ alphanum
+# characters), the 16-digit Visa test PAN (4242 4242 4242 4242),
+# the 16-digit Mastercard test PAN (5555 5555 5555 4444), and a
+# JWT signing secret of 32+ characters. Any string matching those
+# shapes is enough to trigger the rules.
+```
+
+These shapes are what the rules' `pattern-regex`es look for. Once
+the env file is set, scanning the **local checkout** (without
+committing the `.env` file — it is gitignored) will surface the
+secret-related findings alongside the other 162.
+
+> The GitHub clone triggers **0 findings** because the placeholders in
+> the source tree are deliberately chosen to be invisible to both the
+> scanner rules and GitHub's push protection. This is a known
+> trade-off when publishing a fixture repo to a public host with
+> push protection enabled.
