@@ -1,0 +1,25 @@
+{
+  "name": "@app/api",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/server.js",
+  "dependencies": {
+    "express": "4.18.0",
+    "cors": "2.8.5",
+    "jsonwebtoken": "9.0.0",
+    "bcrypt": "5.1.0",
+    "stripe": "12.0.0",
+    "winston": "3.10.0",
+    "@app/shared-config": "*",
+    "@app/shared-db": "*",
+    "@app/shared-errors": "*",
+    "@app/shared-events": "*",
+    "@app/shared-kernel": "*",
+    "@app/module-catalog": "*",
+    "@app/module-cart": "*",
+    "@app/module-checkout": "*",
+    "@app/module-payment": "*",
+    "@app/module-order": "*",
+    "@app/module-user": "*"
+  }
+}

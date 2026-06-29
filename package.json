@@ -1,0 +1,19 @@
+{
+  "name": "ecommerce-modular-monolith-vuln",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Modular monolith (FE+BE) e-commerce. Intentionally vulnerable for DevSecOps scanner testing.",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "packages/modules/*"
+  ],
+  "scripts": {
+    "build:api": "node scripts/build-api.js",
+    "build:web": "node scripts/build-web.js",
+    "build": "npm run build:api && npm run build:web",
+    "dev:api": "node apps/api/src/server.js",
+    "dev:web": "node apps/web/src/dev-server.js",
+    "start": "node apps/api/src/server.js"
+  }
+}
